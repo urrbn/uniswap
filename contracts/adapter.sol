@@ -441,14 +441,14 @@ contract Adapter {
        pairs[token2][token1] = pair;    
     }
 
-    function addLiquidityETH(address token, uint256 tokenAmount, uint256 ethAmount) external {
-
+    function addLiquidityETH(address token, uint256 tokenAmount, uint256 ethAmount, address recipient) external payable{
+        //IERC20(token).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount);
         uniswapV2Router.addLiquidityETH{value: ethAmount}(
             token,
             tokenAmount,
             0,
             0,
-            msg.sender,
+            recipient,
             block.timestamp
         );
     }
@@ -463,7 +463,7 @@ contract Adapter {
             0,
             0,
             msg.sender,
-            block.timestamp
+            block.timestamp + 60
         );
     }
 
@@ -492,7 +492,7 @@ contract Adapter {
         );
     }
 
-    function pathSwap(address tokenFrom, address tokenTo, uint256 tokenAmount) private {
+    function pathSwap(address tokenFrom, address tokenTo, uint256 tokenAmount) external {
         // generate the uniswap pair path of tokenFrom -> tokenTo
         address[] memory path = new address[](3);
         path[0] = tokenFrom;
@@ -509,13 +509,13 @@ contract Adapter {
         );
     }
 
-    function swap(address tokenFrom, address tokenTo, uint256 tokenAmount) private {
+    function swap(address tokenFrom, address tokenTo, uint256 tokenAmount) external {
         address[] memory path = new address[](2);
         path[0] = tokenFrom;
         path[1] = tokenTo;
 
 
-        uniswapV2Router.swapExactTokensForETH(
+        uniswapV2Router.swapExactTokensForTokens(
             tokenAmount,
             0,
             path,

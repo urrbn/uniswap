@@ -22,12 +22,13 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "0.8.11",
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    hardhat: {
+      forking: {
+        url: "https://speedy-nodes-nyc.moralis.io/c65ccf112b7b7f0c317075b7/eth/mainnet",
+      },
+      allowUnlimitedContractSize: true
     },
   },
   gasReporter: {
