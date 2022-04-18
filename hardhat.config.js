@@ -26,10 +26,11 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://speedy-nodes-nyc.moralis.io/c65ccf112b7b7f0c317075b7/eth/mainnet",
+        url: process.env.FORK_URL,
       },
       allowUnlimitedContractSize: true
     },
+  
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

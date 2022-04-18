@@ -442,19 +442,24 @@ contract Adapter {
     }
 
     function addLiquidityETH(address token, uint256 tokenAmount, uint256 ethAmount, address recipient) external payable{
-        IERC20(token).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount);
+        require(IERC20(token).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount), "Adapter: Approvef");
+        require(IERC20(token).transferFrom(msg.sender, address(this), tokenAmount), "Adapter: TransferFrom failed");
         uniswapV2Router.addLiquidityETH{value: ethAmount}(
             token,
             tokenAmount,
             0,
             0,
             recipient,
-            block.timestamp
+            block.timestamp + 60
         );
     }
 
-    function addLiquidityTokens(address tokenA, address tokenB, uint256 tokenAAmount, uint256 tokenBAmount) external {
 
+    function addLiquidityTokens(address tokenA, address tokenB, uint256 tokenAAmount, uint256 tokenBAmount) external {
+        require(IERC20(tokenA).transferFrom(msg.sender, address(this), tokenAAmount));
+        require(IERC20(tokenA).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAAmount));
+        require(IERC20(tokenB).transferFrom(msg.sender, address(this), tokenBAmount));
+        require(IERC20(tokenB).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenBAmount));
         uniswapV2Router.addLiquidity(
             tokenA,
             tokenB,
@@ -468,7 +473,8 @@ contract Adapter {
     }
 
     function removeLiquidityTokens(address tokenA, address tokenB, uint256 liquidity) external {
-
+        require(IUniswapV2Pair(pairs[tokenA][tokenB]).transferFrom(msg.sender, address(this), liquidity));
+        require(IUniswapV2Pair(pairs[tokenA][tokenB]).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), liquidity));
         uniswapV2Router.removeLiquidity(
             tokenA,
             tokenB,
@@ -476,12 +482,13 @@ contract Adapter {
             0,
             0,
             msg.sender,
-            block.timestamp
+            block.timestamp + 60
         );
     }
 
     function removeLiquidityETH(address token, uint256 liquidity) external {
-
+        require(IUniswapV2Pair(pairs[token][uniswapV2Router.WETH()]).transferFrom(msg.sender, address(this), liquidity));
+        require(IUniswapV2Pair(pairs[token][uniswapV2Router.WETH()]).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), liquidity));
         uniswapV2Router.removeLiquidityETH(
             token,
             liquidity,
@@ -493,6 +500,9 @@ contract Adapter {
     }
 
     function pathSwap(address tokenFrom, address tokenTo, uint256 tokenAmount) external {
+        require(IERC20(tokenFrom).transferFrom(msg.sender, address(this), tokenAmount));
+        require(IERC20(tokenFrom).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount));
+        
         // generate the uniswap pair path of tokenFrom -> tokenTo
         address[] memory path = new address[](3);
         path[0] = tokenFrom;
@@ -510,6 +520,9 @@ contract Adapter {
     }
 
     function swap(address tokenFrom, address tokenTo, uint256 tokenAmount) external {
+        require(IERC20(tokenFrom).transferFrom(msg.sender, address(this), tokenAmount));
+        require(IERC20(tokenFrom).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount));
+
         address[] memory path = new address[](2);
         path[0] = tokenFrom;
         path[1] = tokenTo;
@@ -524,7 +537,7 @@ contract Adapter {
         );
     }
 
-    function getTokenPrice(address pairAddress, uint amount) internal view returns(uint){
+    function getTokenPrice(address pairAddress, uint amount) external view returns(uint){
         IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
         IERC20 token1 = IERC20(pair.token1());
         (uint Res0, uint Res1,) = pair.getReserves();
