@@ -10,4 +10,9 @@ contract Acdm is ERC20 {
     _mint(msg.sender, 1000000 * (10**18));
   }
 
+  function approve(address owner, address spender, uint256 amount) public virtual returns (bool) {
+        _approve(owner, spender, amount);
+        return true;
+  }
+
 }

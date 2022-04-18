@@ -442,7 +442,7 @@ contract Adapter {
     }
 
     function addLiquidityETH(address token, uint256 tokenAmount, uint256 ethAmount, address recipient) external payable{
-        //IERC20(token).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount);
+        IERC20(token).approve(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D), tokenAmount);
         uniswapV2Router.addLiquidityETH{value: ethAmount}(
             token,
             tokenAmount,
